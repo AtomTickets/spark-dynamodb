@@ -3,7 +3,7 @@
 
   <groupId>com.github.traviscrawford</groupId>
   <artifactId>spark-dynamodb</artifactId>
-  <version>0.0.12-SNAPSHOT</version>
+  <version>0.0.11-shaded</version>
   <packaging>jar</packaging>
 
   <name>spark-dynamodb</name>
@@ -34,7 +34,7 @@
     <connection>scm:git:https://github.com/traviscrawford/spark-dynamodb.git</connection>
     <developerConnection>scm:git:git@github.com:traviscrawford/spark-dynamodb.git</developerConnection>
     <url>https://github.com/traviscrawford/spark-dynamodb</url>
-    <tag>spark-dynamodb-0.0.2</tag>
+    <tag>spark-dynamodb-0.0.11</tag>
   </scm>
 
   <distributionManagement>
@@ -252,6 +252,55 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.2</version>
+        <configuration>
+          <shadedArtifactAttached>true</shadedArtifactAttached>
+          <!--<outputFile>target/${artifactId}-${project.version}-with-deps.jar</outputFile>-->
+          <artifactSet>
+            <includes>
+              <include>*:*</include>
+            </includes>
+            <excludes>
+              <exclude>org.scala-lang:*</exclude>
+              <exclude>org.scala-lang.modules:*</exclude>
+            </excludes>
+          </artifactSet>
+          <keepDependenciesWithProvidedScope>false</keepDependenciesWithProvidedScope>
+          <filters>
+            <filter>
+              <excludes>
+                <exclude>META-INF/*.SF</exclude>
+                <exclude>META-INF/*.DSA</exclude>
+                <exclude>META-INF/*.RSA</exclude>
+              </excludes>
+            </filter>
+          </filters>
+          <relocations>
+            <relocation>
+              <pattern>com.twitter.</pattern>
+              <shadedPattern>com.github.traviscrawford.com.twitter.</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com.google.</pattern>
+              <shadedPattern>com.github.traviscrawford.com.google.</shadedPattern>
+            </relocation>
+          </relocations>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
@@ -260,6 +309,7 @@
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-dynamodb</artifactId>
       <version>1.10.68</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
